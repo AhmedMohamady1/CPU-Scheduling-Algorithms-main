@@ -43,8 +43,7 @@ def create_window():
         # Create the tuple with algorithm details and process objects
         algo_details = get_algorithm_details()
         processes = create_process_objects()
-        result_tuple = (algo_details, processes)
-        
+                
         # Create new window to display the created objects
         new_window = Toplevel(window)
         new_window.geometry("600x400")
@@ -76,9 +75,6 @@ def create_window():
             Label(process_frame, text=str(process.burst_time)).grid(row=row, column=2, padx=10, pady=2)
             if process.priority is not None:
                 Label(process_frame, text=str(process.priority)).grid(row=row, column=3, padx=10, pady=2)
-        
-        # Return the tuple (this will be available for further processing)
-        return result_tuple
       
 # Main window setup remains the same
 window = Tk()
