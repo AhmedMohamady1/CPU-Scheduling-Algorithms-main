@@ -1,5 +1,85 @@
 from tkinter import Tk, Label, StringVar, OptionMenu, Button, Toplevel, Entry, Frame, PhotoImage, messagebox
 
+class Process:
+    def __init__(self, p_id, arrival_time, burst_time, priority=None):
+        self.p_id = p_id
+        self.arrival_time = arrival_time
+        self.burst_time = burst_time
+        self.priority = priority
+        self.runs = []
+        self.response_time = None
+        self.waiting_time = None
+        self.turnaround_time = None
+        
+def create_process_objects():
+    """Create a list of Process objects from the GUI input"""
+    processes = []
+    is_priority = "Priority" in selected_option.get()
+    
+    for i, row in enumerate(process_rows):
+        p_id = f"P{i+1}"
+        arrival_time = int(row[2].get())
+        burst_time = int(row[1].get())
+        
+        if is_priority:
+            priority = int(row[3].get())
+            process = Process(p_id, arrival_time, burst_time, priority)
+        else:
+            process = Process(p_id, arrival_time, burst_time)
+            
+        processes.append(process)
+    
+    return processes
+
+def get_algorithm_details():
+    """Get algorithm name and quantum value if applicable"""
+    algo_name = selected_option.get()
+    if "Round Robin" in algo_name:
+        return [algo_name, int(quantum_entry.get())]
+    return [algo_name, None]
+
+def create_window():
+    if validate_inputs():
+        # Create the tuple with algorithm details and process objects
+        algo_details = get_algorithm_details()
+        processes = create_process_objects()
+        result_tuple = (algo_details, processes)
+        
+        # Create new window to display the created objects
+        new_window = Toplevel(window)
+        new_window.geometry("600x400")
+        new_window.title("Process Details")
+        
+        # Display algorithm details
+        Label(new_window, text="Algorithm Details:", font=("Verdana", 16, "bold")).pack(pady=10)
+        Label(new_window, text=f"Algorithm: {algo_details[0]}", font=("Verdana", 12)).pack()
+        if algo_details[1]:
+            Label(new_window, text=f"Time Quantum: {algo_details[1]}", font=("Verdana", 12)).pack()
+        
+        # Display process objects
+        Label(new_window, text="\nProcess Objects:", font=("Verdana", 16, "bold")).pack(pady=10)
+        process_frame = Frame(new_window)
+        process_frame.pack(padx=20, pady=10)
+        
+        # Headers
+        headers = ["Process ID", "Arrival Time", "Burst Time"]
+        if "Priority" in algo_details[0]:
+            headers.append("Priority")
+            
+        for col, header in enumerate(headers):
+            Label(process_frame, text=header, font=("Verdana", 12, "bold")).grid(row=0, column=col, padx=10, pady=5)
+        
+        # Process details
+        for row, process in enumerate(processes, start=1):
+            Label(process_frame, text=process.p_id).grid(row=row, column=0, padx=10, pady=2)
+            Label(process_frame, text=str(process.arrival_time)).grid(row=row, column=1, padx=10, pady=2)
+            Label(process_frame, text=str(process.burst_time)).grid(row=row, column=2, padx=10, pady=2)
+            if process.priority is not None:
+                Label(process_frame, text=str(process.priority)).grid(row=row, column=3, padx=10, pady=2)
+        
+        # Return the tuple (this will be available for further processing)
+        return result_tuple
+      
 # Main window setup remains the same
 window = Tk()
 window.geometry("1000x600")
@@ -227,14 +307,6 @@ def validate_inputs():
 
     return True
 
-def create_window():
-    if validate_inputs():
-        new_window = Toplevel(window)
-        new_window.geometry("600x400")
-        new_window.title("New Window")
-        Label(new_window, text="Selected Algorithm:", font=("Verdana", 20)).pack(pady=20)
-        Label(new_window, text=selected_option.get(), font=("Verdana", 18)).pack(pady=10)
-
 # Setup quantum entry validation
 quantum_vcmd = (window.register(validate_integer_input), '%P')
 quantum_entry.configure(validate='key', validatecommand=quantum_vcmd)
@@ -252,4 +324,4 @@ btn.pack(pady=20)
 # Run the application
 window.mainloop()
 
-print(process_rows)
+print()
